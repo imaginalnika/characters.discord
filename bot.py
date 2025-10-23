@@ -17,8 +17,8 @@ r = redis.Redis(host='localhost', port=6379, decode_responses=True)
 
 CHARACTER_NAME = 'pirate'
 
-if not r.exists(name):
-    add_character(name, prompt=llm(f"Generate a short character prompt for a Discord bot named '{name}'. Keep it 1-2 sentences, friendly and conversational."), sethome_message=llm(f"Generate a short, in-character message (1 sentence) for a '{name}' character bot saying this channel is now their home."))
+if not r.exists(CHARACTER_NAME):
+    add_character(CHARACTER_NAME, prompt=llm(f"Generate a short character prompt for a Discord bot named '{CHARACTER_NAME}'. Keep it 1-2 sentences, friendly and conversational."), sethome_message=llm(f"Generate a short, in-character message (1 sentence) for a '{CHARACTER_NAME}' character bot saying this channel is now their home."))
 
 def get_character(name):
     return json.loads(r.get(name))
@@ -39,12 +39,13 @@ def llm(prompt, system=None):
     return chat_response([{"role": "user", "content": prompt}], system=system)
 
 async def respond_in(channel):
-    messages = [msg async for msg in channel.history(limit=20)]
-    chat_messages = []
-    for msg in reversed(messages):
-        chat_messages.append({"role": "assistant" if msg.author == bot.user else "user", "content": msg.content})
+    async with channel.typing():
+        messages = [msg async for msg in channel.history(limit=20)]
+        chat_messages = []
+        for msg in reversed(messages):
+            chat_messages.append({"role": "assistant" if msg.author == bot.user else "user", "content": msg.content})
 
-    await channel.send(chat_response(chat_messages, system=get_character(CHARACTER_NAME)['prompt']))
+        await channel.send(chat_response(chat_messages, system=get_character(CHARACTER_NAME)['prompt']))
 
 @bot.event
 async def on_ready():
