@@ -23,7 +23,7 @@ async def run_bot(name):
         # Skip simple reactions
         last_message = messages[0]
         stripped = last_message.content.replace(" ", "").replace("\n", "")
-        if stripped and (set(stripped) <= {'아', 'ㅋ', '헉', 'ㄷ', '.', '!', '?', '엥'} or stripped == "레게노"):
+        if stripped and (set(stripped) <= {'아', 'ㅋ', '헉', 'ㄷ', '.', '!', '?', '엥', '오', '흠'} or stripped == "레게노"):
             return
 
         async with channel.typing():
